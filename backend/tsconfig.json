@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "ESNext",
+        "noEmitOnError": true,
+        "strict": true,
+        "declaration": true,
+        "moduleResolution": "node",
+        "module": "CommonJS",
+        "noImplicitAny": true,
+        "resolveJsonModule": true,
+        "removeComments": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
