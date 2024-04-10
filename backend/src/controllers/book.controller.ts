@@ -1,6 +1,6 @@
-import { RequestHandler } from "express";
-import { Database } from "../database/database";
-import { CustomRequest } from "../auth";
+import { RequestHandler } from 'express';
+import { Database } from '../database/database';
+import { CustomRequest } from '../auth';
 import fs = require('fs');
 
 function convertImage(filename: string | undefined) {
