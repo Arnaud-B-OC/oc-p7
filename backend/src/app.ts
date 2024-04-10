@@ -1,6 +1,6 @@
 import express = require('express');
-import bookRoutes from './routes/book';
-import authRoutes from './routes/auth';
+import bookRoutes from './routes/book.route';
+import authRoutes from './routes/auth.route';
 
 const app = express();
 
