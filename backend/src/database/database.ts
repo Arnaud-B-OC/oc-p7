@@ -1,14 +1,20 @@
 import mongoose = require('mongoose');
-import { Book } from './models/book';
-import { User } from './models/user';
+import { Book, BookType } from './models/book.model';
+import { User, UserType } from './models/user.model';
 
 export class Database {
+    // ### Instance ### //
     protected static instance: Database;
 
     protected constructor() {
-        mongoose.connect(process.env.MONGODB_URL!)
-        .then(() => console.log('[DB] Connexion à MongoDB réussie !'))
-        .catch((err) => console.error('[DB] [ERR] Connexion à MongoDB échouée !', err));
+        if (!process.env.MONGODB_URL) {
+            console.error('[ERR-DB] You need to provide a MONGODB_URL env var !')
+            return;
+        }
+
+        mongoose.connect(process.env.MONGODB_URL)
+        .then(() => console.log('[DB] MongoDB connected !'))
+        .catch((err) => console.error('[ERR-DB] Connection to MongoDB fail !', err));
     }
 
     public static get(): Database {
@@ -16,30 +22,19 @@ export class Database {
         return Database.instance;
     }
 
-
-
+    // ### Queries ### //
     public user = {
-        get_hash: (email: string) => {
-            return new Promise<{id:string, mail:string, hash:string} | null>((resolve, reject) => {
+        get: (email: string) : Promise<UserType | null> => {
+            return new Promise((resolve, reject) => {
                 User.findOne({email})
-                .then((user) => {
-                    if (user) {
-                        resolve({
-                            id: user._id.toString(),
-                            mail: user.email,
-                            hash: user.password
-                        })
-                    }
-                    else {
-                        resolve(null);
-                    }
-                }).catch((err) => {
+                .then((user) => resolve(user))
+                .catch((err) => {
                     console.error('[DB] [ERR]', err);
-                    reject();
+                    reject(err);
                 });
             });
         },
-        create: (email: string, password_hash: string) => {
+        create: (email: string, password_hash: string) : Promise<UserType> => {
             const user = new User({
                 email,
                 password: password_hash,
@@ -50,19 +45,17 @@ export class Database {
     }
 
     public book = {
-        get: (book_id: string) => {
+        get: (book_id: string) : Promise<BookType | null> => {
             return new Promise((resolve, reject) => {
                 Book.findOne({_id: book_id})
-                .then((book) => {
-                    resolve(book)
-                })
+                .then((book) => resolve(book))
                 .catch((err) => {
                     console.error('[DB] [ERR]', err);
-                    reject();
+                    reject(err);
                 });
             });
         },
-        get_all: () => {
+        get_all: () : Promise<BookType[]> => {
             return new Promise((resolve) => {
                 Book.find()
                 .then((books) => resolve(books))
@@ -72,12 +65,10 @@ export class Database {
                 });
             });
         },
-        create: (options: BookOptions) => {
-            return new Promise<void>((resolve, reject) => {
+        create: (options: BookOptions) : Promise<BookType | null> => {
+            return new Promise((resolve, reject) => {
                 new Book({ ...options }).save()
-                .then(() => {
-                    resolve();
-                })
+                .then((book) => resolve(book))
                 .catch((err) => {
                     console.error('[DB] [ERR]', err)
                     reject();
@@ -97,32 +88,26 @@ export class Database {
                 });
             });
         },
-        update: (book_id: string | undefined, user_id: string | undefined, options: BookEditOptions) => {
+        update: (book_id: string, user_id: string, options: BookEditOptions) => {
             return new Promise<void>((resolve, reject) => {
-                if (!book_id) return resolve();
-                if (!user_id) return resolve();
-                
-                Book.updateOne({_id: book_id, userId: user_id}, options)
-                .then(() => {
-                    resolve();
-                })
+                Book.updateOne({ _id: book_id, userId: user_id }, options)
+                .then(() => resolve())
                 .catch((err) => {
                     console.error('[DB] [ERR]', err)
                     reject();
                 });
             });
         },
-        add_rating: (book_id: string | undefined, user_id: string | undefined, grade: number) => {
+
+        add_rating: (book_id: string, user_id: string, grade: number) => {
             return new Promise((resolve, reject) => {
-                if (!book_id) return reject();
-                if (!user_id) return reject();
-                
                 Book.updateOne(
                     {_id: book_id},
                     {$push: {ratings: {userId: user_id, grade}}}
                 ).then(() => {
+
                     this.book.get(book_id)
-                    .then((book : any) => {
+                    .then((book) => {
                         // TODO : Rating
 
                         resolve(book)
@@ -134,6 +119,6 @@ export class Database {
                     reject();
                 });
             });
-        }
+        },
     }
 }

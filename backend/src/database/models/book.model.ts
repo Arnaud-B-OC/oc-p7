@@ -1,6 +1,20 @@
 import mongoose, { Schema } from 'mongoose';
 
-const BookSchema = new Schema({
+interface IBook extends mongoose.Document {
+    userId: string
+    title: string
+    author: string
+    imageUrl: string
+    year: number
+    genre: string
+    ratings: {
+        userId: string
+        grade: number
+    }[]
+    averageRating: number
+}
+
+const BookSchema = new Schema<IBook>({
     userId: { type: String, required: true },
     title: { type: String, required: true },
     author: { type: String, required: true },
@@ -16,4 +30,5 @@ const BookSchema = new Schema({
     averageRating: { type: Number, default: 0 },
 });
 
-export const Book = mongoose.model('Book', BookSchema);
+export const Book = mongoose.model<IBook>('Book', BookSchema);
+export type BookType = (mongoose.Document<unknown, {}, IBook> & IBook & { _id: mongoose.Types.ObjectId });
