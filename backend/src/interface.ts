@@ -1,9 +1,4 @@
 
-interface IUser {
-    email: string
-    password: string
-}
-
 interface IBook {
     _id: string
     userId: string
@@ -33,9 +28,10 @@ interface BookOptions {
     averageRating: number
 }
 interface BookEditOptions {
-    title: string
-    author: string
-    imageUrl: string
-    year: number
-    genre: string
+    title?: string
+    author?: string
+    imageUrl?: string
+    year?: number
+    genre?: string
+    averageRating?: number
 }

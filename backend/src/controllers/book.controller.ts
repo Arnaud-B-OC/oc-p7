@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { Database } from '../database/database';
 import { CustomRequest } from '../utils/middlewares/auth';
 import { CustomRequestConvert } from '../utils/middlewares/imageConvert';
-import { isValidYear } from '../utils/utils';
+import { isValidRating, isValidYear } from '../utils/utils';
 
 // ### Get All Books ### //
 export const getAllBooks : RequestHandler = (req, res) => {
@@ -36,7 +36,7 @@ export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) =
     if (!req.imageUrl) return res.status(400).json({message: 'Valid image is required'});
     if (!book.title) return res.status(400).json({message: 'Valid title is required'});
     if (!book.author) return res.status(400).json({message: 'Valid author is required'});
-    if (!book.year || !isValidYear(book.year)) return res.status(400).json({message: 'Valid year is required'});
+    if (!isValidYear(book.year)) return res.status(400).json({message: 'Valid year is required'});
     if (!book.genre) return res.status(400).json({message: 'Valid genre is required'});
 
     Database.get().book.create({
@@ -46,15 +46,13 @@ export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) =
         imageUrl: req.imageUrl,
         year: book.year,
         genre: book.genre,
-        ratings: [
-            {
-                userId: (req as CustomRequest).auth?.userId,
-                grade: book.ratings[0].grade
-            }
-        ],
-        averageRating: book.ratings[0].grade,
+        ratings: [],
+        averageRating: 0,
     })
-    .then(() => res.status(200).json({ message: 'Ok' }))
+    .then((createdBook) => {
+        res.status(200).json({ message: 'Ok' });
+        Database.get().book.add_rating(createdBook?._id, (req as CustomRequest).auth?.userId, book.ratings[0]?.grade);
+    })
     .catch((err) => {
         res.status(500).json({ message: 'Server Error' });
     });
@@ -78,12 +76,12 @@ export const removeBookWithID : RequestHandler = (req, res) => {
 
 // ### Add Rating With ID ### //
 export const addRatingOnBookWithID : RequestHandler = (req, res) => {
+    if (!isValidRating(req.body.rating)) return res.status(400).json({message: 'Valid rating is required'});
+
     Database.get().book.add_rating(req.params.id, (req as CustomRequest).auth?.userId, req.body.rating)
-    .then((book) => {
-        res.status(200).json(book);
-        // TODO : recalculate note
-    })
-    .catch(() => {
+    .then((book) => res.status(200).json(book))
+    .catch((err) => {
+        console.log('[ERR]', err)
         res.status(500).json({ message: 'Internal Server Error' });
     });
 }

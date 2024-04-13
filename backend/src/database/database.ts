@@ -12,7 +12,7 @@ export class Database {
             return;
         }
 
-        mongoose.connect(process.env.MONGODB_URL)
+        mongoose.connect(process.env.MONGODB_URL, {dbName: 'monvieuxgrimoire'})
         .then(() => console.log('[DB] MongoDB connected !'))
         .catch((err) => console.error('[ERR-DB] Connection to MongoDB fail !', err));
     }
@@ -102,17 +102,35 @@ export class Database {
         add_rating: (book_id: string, user_id: string, grade: number) => {
             return new Promise((resolve, reject) => {
                 Book.updateOne(
-                    {_id: book_id},
-                    {$push: {ratings: {userId: user_id, grade}}}
+                    { _id: book_id, 'ratings.userId': {$ne: user_id} },
+                    { $addToSet: {ratings: {userId: user_id, grade}} }
                 ).then(() => {
-
                     this.book.get(book_id)
-                    .then((book) => {
-                        // TODO : Rating
+                    .then(async (book) => {
+                        if (!book) return reject();
 
-                        resolve(book)
+                        let totalRating = book.ratings.length;
+                        let totalScore = 0;
+                        
+                        book.ratings.map((rating) => { totalScore += rating.grade; });
+                        let avg = totalScore / totalRating;
+
+                        if (avg != book.averageRating) {
+                            book.averageRating = avg;
+                            await book.save();
+
+                            this.book.update(book_id, user_id, { averageRating: avg }).then(() => {
+                                resolve(book);
+                            }).catch(reject);
+                        }
+                        else {
+                            resolve(book);
+                        }
                     })
-                    .catch(() => reject());
+                    .catch((err) => {
+                        console.error('[DB] [ERR]', err)
+                        reject();
+                    });
                 })
                 .catch((err) => {
                     console.error('[DB] [ERR]', err)
