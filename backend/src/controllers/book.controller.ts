@@ -65,7 +65,7 @@ export const updateBookWithID : RequestHandler = (req: CustomRequestConvert, res
     Database.get().book.update(req.params.id, (req as CustomRequest).auth?.userId, {
         title: book?.title,
         author: book?.author,
-        imageUrl: req?.imageUrl,
+        imageUrl: req.imageUrl,
         year: book?.year,
         genre: book?.genre,
     })

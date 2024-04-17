@@ -23,7 +23,7 @@ bookRoutes.post('', createNewBook);
 
 // ### Update Book With ID ### //
 bookRoutes.put('/:id', checkToken);
-bookRoutes.post('', upload.single('image'), convertImageToWebp);
+bookRoutes.put('/:id', upload.single('image'), convertImageToWebp);
 bookRoutes.put('/:id', updateBookWithID);
 
 // ### Remove Book With ID ### //

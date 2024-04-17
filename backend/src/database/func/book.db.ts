@@ -69,19 +69,14 @@ export function add_rating(this: Database, book_id: string, user_id: string, gra
             .then(async (book) => {
                 if (!book) return reject();
 
-                let totalRating = book.ratings.length;
+                const totalRating = book.ratings.length;
                 let totalScore = 0;
                 
                 book.ratings.map((rating) => { totalScore += rating.grade; });
                 let avg = totalScore / totalRating;
 
                 if (avg != book.averageRating) {
-                    book.averageRating = avg;
-                    await book.save();
-
-                    this.book.update(book_id, user_id, { averageRating: avg }).then(() => {
-                        resolve(book);
-                    }).catch(reject);
+                    this.book.update(book_id, user_id, { averageRating: avg }).then(() => resolve(book)).catch(reject);
                 }
                 else {
                     resolve(book);
