@@ -4,7 +4,7 @@ Code du projet 7 développeur web : Développez le back-end d'un site de notatio
 
 ## Information pour le lancer le projet
 
-Le projet nécessite node 20.
+Le projet nécessite node 20 et typescript.
 
 Il faut également configurer les variables d'environnement suivante dans un fichier .env
 
