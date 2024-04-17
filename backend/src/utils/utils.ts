@@ -2,6 +2,7 @@
 const mailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 export function isValidMail(mail: string | undefined) {
     if (!mail) return false;
+    if (typeof mail != 'string') return false;
 
     return mail.match(mailRegex) ? true : false;
 }
@@ -27,4 +28,12 @@ export function isValidRating(ratingStr: string | number | undefined) {
     if (rating > 5 || rating < 0) return false;
 
     return true;
+}
+
+export function tryParseJSON(str: string) {
+    try {
+        return JSON.parse(str);
+    } catch (error) {
+        return undefined
+    }
 }

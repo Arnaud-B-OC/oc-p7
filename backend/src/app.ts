@@ -1,6 +1,7 @@
 import express = require('express');
 import bookRoutes from './routes/book.route';
 import authRoutes from './routes/auth.route';
+import mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use(mongoSanitize());
 
 app.use(express.static('public'));
 

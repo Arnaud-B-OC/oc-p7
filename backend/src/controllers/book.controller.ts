@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { Database } from '../database/database';
 import { CustomRequest } from '../utils/middlewares/auth';
 import { CustomRequestConvert } from '../utils/middlewares/imageConvert';
-import { isValidRating, isValidYear } from '../utils/utils';
+import { isValidRating, isValidYear, tryParseJSON } from '../utils/utils';
 
 // ### Get All Books ### //
 export const getAllBooks : RequestHandler = (req, res) => {
@@ -31,13 +31,13 @@ export const getBookWithID : RequestHandler = (req, res) => {
 
 // ### Create New Book ### //
 export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) => {
-    let book : IBook = JSON.parse(req.body.book);
+    let book : IBook | undefined = tryParseJSON(req.body.book);
     
     if (!req.imageUrl) return res.status(400).json({message: 'Valid image is required'});
-    if (!book.title) return res.status(400).json({message: 'Valid title is required'});
-    if (!book.author) return res.status(400).json({message: 'Valid author is required'});
-    if (!isValidYear(book.year)) return res.status(400).json({message: 'Valid year is required'});
-    if (!book.genre) return res.status(400).json({message: 'Valid genre is required'});
+    if (!book?.title) return res.status(400).json({message: 'Valid title is required'});
+    if (!book?.author) return res.status(400).json({message: 'Valid author is required'});
+    if (!isValidYear(book?.year)) return res.status(400).json({message: 'Valid year is required'});
+    if (!book?.genre) return res.status(400).json({message: 'Valid genre is required'});
 
     Database.get().book.create({
         userId: (req as CustomRequest).auth?.userId,
@@ -60,9 +60,15 @@ export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) =
 
 // ### Update Book With ID ### //
 export const updateBookWithID : RequestHandler = (req: CustomRequestConvert, res) => {
-    let book : IBook = JSON.parse(req.body.book);
+    let book : IBook | undefined = tryParseJSON(req.body.book);
     
-    Database.get().book.update(req.params.id, (req as CustomRequest).auth?.userId, Object.assign(book, {imageUrl: req.imageUrl}))
+    Database.get().book.update(req.params.id, (req as CustomRequest).auth?.userId, {
+        title: book?.title,
+        author: book?.author,
+        imageUrl: req?.imageUrl,
+        year: book?.year,
+        genre: book?.genre,
+    })
     .then(() => res.status(200).json({ message: 'Successfully updated book' }))
     .catch(() => res.status(500).json({ message: 'Fail to update book' }));
 }
