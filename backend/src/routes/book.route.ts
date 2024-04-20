@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { checkToken } from '../utils/middlewares/auth';
+import { checkToken } from '../middlewares/auth';
 import multer = require('multer');
 import { addRatingOnBookWithID, createNewBook, getAllBooks, getBestRatingBooks, getBookWithID, removeBookWithID, updateBookWithID } from '../controllers/book.controller';
-import { convertImageToWebp } from '../utils/middlewares/imageConvert';
+import { convertImageToWebp } from '../middlewares/imageConvert';
 
 const bookRoutes = Router();
 

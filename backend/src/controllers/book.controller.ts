@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { Database } from '../database/database';
-import { CustomRequest } from '../utils/middlewares/auth';
-import { CustomRequestConvert } from '../utils/middlewares/imageConvert';
+import { CustomRequest } from '../middlewares/auth';
+import { CustomRequestConvert } from '../middlewares/imageConvert';
 import { isValidRating, isValidYear, tryParseJSON } from '../utils/utils';
 
 // ### Get All Books ### //
