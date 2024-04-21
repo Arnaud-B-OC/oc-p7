@@ -4,6 +4,8 @@ import multer = require('multer');
 import { addRatingOnBookWithID, createNewBook, getAllBooks, getBestRatingBooks, getBookWithID, removeBookWithID, updateBookWithID } from '../controllers/book.controller';
 import { convertImageToWebp } from '../middlewares/imageConvert';
 
+const upload = multer({ dest: 'uploads/' });
+
 const bookRoutes = Router();
 
 // ### Get All Books ### //
@@ -16,7 +18,6 @@ bookRoutes.get('/bestrating', getBestRatingBooks);
 bookRoutes.get('/:id', getBookWithID);
 
 // ### Create New Book ### //
-const upload = multer({ dest: 'uploads/' });
 bookRoutes.post('', checkToken);
 bookRoutes.post('', upload.single('image'), convertImageToWebp);
 bookRoutes.post('', createNewBook);
