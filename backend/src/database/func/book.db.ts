@@ -76,6 +76,7 @@ export function add_rating(this: Database, book_id: string, user_id: string, gra
                 let avg = totalScore / totalRating;
 
                 if (avg != book.averageRating) {
+                    book.averageRating = avg;
                     this.book.update(book_id, user_id, { averageRating: avg }).then(() => resolve(book)).catch(reject);
                 }
                 else {

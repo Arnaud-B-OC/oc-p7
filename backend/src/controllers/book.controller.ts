@@ -6,7 +6,9 @@ import { isValidRating, isValidYear, tryParseJSON } from '../utils/utils';
 
 // ### Get All Books ### //
 export const getAllBooks : RequestHandler = (req, res) => {
-    Database.get().book.get_all().then((books) => res.status(200).json(books));
+    Database.get().book.get_all()
+    .then((books) => res.status(200).json(books))
+    .catch(() => res.status(500).json({ message: 'Internal Server Error' }));
 }
 
 // ### Get 3 Best Books ### //
@@ -14,7 +16,8 @@ export const getBestRatingBooks : RequestHandler = (req, res) => {
     Database.get().book.get_all().then((books) => {
         const bestBooks = books.sort((a, b) => b.averageRating - a.averageRating).slice(0, 3);
         res.status(200).json(bestBooks);
-    });
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Server Error' }));
 }
 
 // ### Get Book With ID ### //
@@ -54,7 +57,7 @@ export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) =
         Database.get().book.add_rating(createdBook?._id, (req as CustomRequest).auth?.userId, book.ratings[0]?.grade);
     })
     .catch((err) => {
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Internal Server Error' });
     });
 }
 
