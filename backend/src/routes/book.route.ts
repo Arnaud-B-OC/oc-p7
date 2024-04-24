@@ -4,7 +4,7 @@ import multer = require('multer');
 import { addRatingOnBookWithID, createNewBook, getAllBooks, getBestRatingBooks, getBookWithID, removeBookWithID, updateBookWithID } from '../controllers/book.controller';
 import { convertImageToWebp } from '../middlewares/imageConvert';
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 4194304 /* bytes */ }});
 
 const bookRoutes = Router();
 
