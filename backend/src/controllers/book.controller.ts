@@ -63,8 +63,13 @@ export const createNewBook : RequestHandler = (req: CustomRequestConvert, res) =
 
 // ### Update Book With ID ### //
 export const updateBookWithID : RequestHandler = (req: CustomRequestConvert, res) => {
-    let book : IBook | undefined = tryParseJSON(req.body.book);
-    
+    let book : IBook | undefined = tryParseJSON(req.body.book) ?? req.body;
+
+    if (!book?.title) return res.status(400).json({message: 'Valid title is required'});
+    if (!book?.author) return res.status(400).json({message: 'Valid author is required'});
+    if (!isValidYear(book?.year)) return res.status(400).json({message: 'Valid year is required'});
+    if (!book?.genre) return res.status(400).json({message: 'Valid genre is required'});
+
     Database.get().book.update(req.params.id, (req as CustomRequest).auth?.userId, {
         title: book?.title,
         author: book?.author,
